@@ -86,6 +86,44 @@ f) Таблиця "borrowed_books":
 4. SQL команди до кожного пункту чи підпункту виконуються і дають очікуваний результат (створюють таблиці чи роблять певні операції з даними).
 5. Дано відповіді на запитання в 4-му пункті.
 
-### Результат виконаного ДЗ
+### Результат виконаного ДЗ:
 
-![Results](./images/p1_.png)
+1. Створення бази даних LibraryManagement (DDL)
+
+![Results](./images/p1_create_library_tables.png)
+
+2. Наповнення таблиць тестовими даними (DML)
+
+![Results](./images/p2_insert_test_data.png)
+
+3. Запит з INNER JOIN, що об'єднує всі таблиці бази mydb
+
+![Results](./images/p3_inner_join_all_tables.png)
+
+4.1. Кількість рядків (COUNT)
+
+![Results](./images/p4a_count_inner_join.png)
+
+4.2. Заміна декількох INNER на LEFT/RIGHT JOIN
+
+![Results](./images/p4b_left_right_join.png)
+
+4.3. Фільтр employee_id > 3 та <= 10
+
+![Results](./images/p4c_employee_filter.png)
+
+4.4. Групування за категорією, підрахунок рядків та середньої кількості товару
+
+![Results](./images/p4d_group_by_category.png)
+
+4.5. Фільтрація HAVING avg_quantity > 21
+
+![Results](./images/p4e_having_avg_quantity.png)
+
+4.6. Сортування за спаданням кількості рядків
+
+![Results](./images/p4f_order_by_desc.png)
+
+4.7. Чотири рядки з пропущеним першим (LIMIT 4 OFFSET 1)
+
+![Results](./images/p4g_limit_offset.png)

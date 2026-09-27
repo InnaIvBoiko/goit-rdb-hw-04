@@ -1,0 +1,190 @@
+Домашнє завдання до Теми 4. DML та DDL команди. Складні SQL вирази
+ 
+ 
+1. Створення бази даних LibraryManagement (DDL)
+ 
+CREATE DATABASE LibraryManagement;
+USE LibraryManagement;
+ 
+CREATE TABLE authors (
+    author_id INT AUTO_INCREMENT PRIMARY KEY,
+    author_name VARCHAR(100)
+);
+ 
+CREATE TABLE genres (
+    genre_id INT AUTO_INCREMENT PRIMARY KEY,
+    genre_name VARCHAR(100)
+);
+ 
+CREATE TABLE books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200),
+    publication_year YEAR,
+    author_id INT,
+    genre_id INT,
+    FOREIGN KEY (author_id) REFERENCES authors(author_id),
+    FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+);
+ 
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100),
+    email VARCHAR(100)
+);
+ 
+CREATE TABLE borrowed_books (
+    borrow_id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT,
+    user_id INT,
+    borrow_date DATE,
+    return_date DATE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+ 
+ 
+2. Наповнення таблиць тестовими даними (DML)
+ 
+INSERT INTO authors (author_name) VALUES
+    ('George Orwell'),
+    ('J.K. Rowling');
+ 
+INSERT INTO genres (genre_name) VALUES
+    ('Dystopian'),
+    ('Fantasy');
+ 
+INSERT INTO books (title, publication_year, author_id, genre_id) VALUES
+    ('1984', 1949, 1, 1),
+    ('Harry Potter and the Philosopher''s Stone', 1997, 2, 2);
+ 
+INSERT INTO users (username, email) VALUES
+    ('mrossi', 'mrossi@example.com'),
+    ('jsmith', 'jsmith@example.com');
+ 
+INSERT INTO borrowed_books (book_id, user_id, borrow_date, return_date) VALUES
+    (1, 1, '2026-01-10', '2026-01-24'),
+    (2, 2, '2026-02-01', NULL);
+ 
+ 
+3. Запит з INNER JOIN, що об'єднує всі таблиці бази mydb
+ 
+USE mydb;
+ 
+SELECT *
+FROM order_details
+INNER JOIN orders ON order_details.order_id = orders.id
+INNER JOIN customers ON orders.customer_id = customers.id
+INNER JOIN employees ON orders.employee_id = employees.employee_id
+INNER JOIN shippers ON orders.shipper_id = shippers.id
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+INNER JOIN suppliers ON products.supplier_id = suppliers.id;
+ 
+Результат: 518 рядків.
+ 
+ 
+4. Запити пункту 4
+ 
+4.1. Кількість рядків (COUNT)
+ 
+SELECT COUNT(*) AS total_rows
+FROM order_details
+INNER JOIN orders ON order_details.order_id = orders.id
+INNER JOIN customers ON orders.customer_id = customers.id
+INNER JOIN employees ON orders.employee_id = employees.employee_id
+INNER JOIN shippers ON orders.shipper_id = shippers.id
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+INNER JOIN suppliers ON products.supplier_id = suppliers.id;
+ 
+Результат: 518.
+ 
+ 
+4.2. Заміна декількох INNER на LEFT/RIGHT JOIN
+ 
+SELECT COUNT(*) AS total_rows
+FROM order_details
+RIGHT JOIN orders ON order_details.order_id = orders.id
+RIGHT JOIN customers ON orders.customer_id = customers.id
+LEFT JOIN employees ON orders.employee_id = employees.employee_id
+LEFT JOIN shippers ON orders.shipper_id = shippers.id
+LEFT JOIN products ON order_details.product_id = products.id
+LEFT JOIN categories ON products.category_id = categories.id
+LEFT JOIN suppliers ON products.supplier_id = suppliers.id;
+ 
+Результат: 535 (замість 518).
+ 
+Відповідь: кількість рядків збільшилась, тому що INNER JOIN повертає лише ті рядки,
+для яких є відповідність в ОБОХ таблицях, а LEFT/RIGHT JOIN повертають усі рядки
+з "головної" (лівої/правої) таблиці незалежно від того, чи є відповідність в іншій
+таблиці. Якщо, наприклад, деякі замовлення (orders) не мають пов'язаних order_details,
+або деякі товари (products) мають supplier_id чи category_id без відповідника в
+таблицях suppliers/categories, INNER JOIN такі рядки виключає, а LEFT/RIGHT JOIN
+включає їх, підставляючи NULL замість відсутніх значень. Саме тому загальна
+кількість рядків зростає.
+ 
+ 
+4.3. Фільтр employee_id > 3 та <= 10
+ 
+SELECT *
+FROM order_details
+INNER JOIN orders ON order_details.order_id = orders.id
+INNER JOIN customers ON orders.customer_id = customers.id
+INNER JOIN employees ON orders.employee_id = employees.employee_id
+INNER JOIN shippers ON orders.shipper_id = shippers.id
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+INNER JOIN suppliers ON products.supplier_id = suppliers.id
+WHERE orders.employee_id > 3 AND orders.employee_id <= 10;
+ 
+Результат: 317 рядків.
+ 
+ 
+4.4. Групування за категорією, підрахунок рядків та середньої кількості товару
+ 
+SELECT categories.name AS category_name,
+    COUNT(*) AS num_rows,
+    AVG(order_details.quantity) AS avg_quantity
+FROM order_details
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+GROUP BY categories.name;
+ 
+ 
+4.5. Фільтрація HAVING avg_quantity > 21
+ 
+SELECT categories.name AS category_name,
+    COUNT(*) AS num_rows,
+    AVG(order_details.quantity) AS avg_quantity
+FROM order_details
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+GROUP BY categories.name
+HAVING avg_quantity > 21;
+ 
+ 
+4.6. Сортування за спаданням кількості рядків
+ 
+SELECT categories.name AS category_name,
+    COUNT(*) AS num_rows,
+    AVG(order_details.quantity) AS avg_quantity
+FROM order_details
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+GROUP BY categories.name
+HAVING avg_quantity > 21
+ORDER BY num_rows DESC;
+ 
+ 
+4.7. Чотири рядки з пропущеним першим (LIMIT 4 OFFSET 1)
+ 
+SELECT categories.name AS category_name,
+    COUNT(*) AS num_rows,
+    AVG(order_details.quantity) AS avg_quantity
+FROM order_details
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+GROUP BY categories.name
+HAVING avg_quantity > 21
+ORDER BY num_rows DESC
+LIMIT 4 OFFSET 1;
